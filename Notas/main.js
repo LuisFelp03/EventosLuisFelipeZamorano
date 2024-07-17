@@ -1,95 +1,115 @@
 let notes = [
     { id: 1, title: "Comer", text: "Quedó comida de ayer", realizada: true },
-    { id: 2, title: "Estudiar eventos", text: "Estoy flojo de papeles y no voy a aprobar la task 3", realizada: false },
+    { id: 2, title: "Estudiar eventos", text: "Estoy flojo de papeles y no voy a aprobar la tarea 3", realizada: false },
     { id: 3, title: "Sacar la basura", text: "Mi mamá me va a retar si no lo hago", realizada: false },
     { id: 4, title: "Tomar agua", text: "Debo hidratarme bien para no desmayarme", realizada: true }
 ];
 let idGlobal = 4;
 
-/* Mostrar en la interfaz de usuario la lista de notas que recibe como parámetro */
+// Función para renderizar las notas en la interfaz de usuario
 function renderNotes(filteredNotes) {
     const notesContainer = document.getElementById('notesContainer');
     notesContainer.innerHTML = '';
 
+    // Mostrar un mensaje si no hay notas para mostrar
     if (filteredNotes.length === 0) {
         notesContainer.innerHTML = '<p>No hay notas para mostrar</p>';
         return;
     }
 
+    // Ordenar las notas alfabéticamente por título
     filteredNotes.sort((a, b) => a.title.localeCompare(b.title));
 
-    filteredNotes.forEach(note => {
+    // Iterar sobre cada nota y crear elementos HTML para mostrarlas
+    filteredNotes.forEach(function (note) {
         const noteElement = document.createElement('div');
-        noteElement.className = `note ${note.realizada ? 'note-realizada' : ''}`;
-        noteElement.innerHTML = `
-            <div class="content">
-                <h2>
-                    <input type="checkbox" onclick="toggleDone(${note.id})" ${note.realizada ? 'checked' : ''}>
-                    ${note.title}
-                </h2>
-                <p>${note.text}</p>
-            </div>
-            <div class="actions">
-                <button onclick="deleteNote(${note.id})">Borrar nota</button>
-            </div>
-        `;
+        noteElement.className = 'note';
+        // Agregar una clase adicional si la nota está marcada como realizada
+        if (note.realizada) {
+            noteElement.classList.add('note-realizada');
+        }
+        // Construir el HTML de la nota con título, contenido y acciones
+        noteElement.innerHTML = '<div class="content">' +
+            '<h2><input type="checkbox" onclick="toggleDone(' + note.id + ')" ' + (note.realizada ? 'checked' : '') + '>' + note.title + '</h2>' +
+            '<p>' + note.text + '</p>' +
+            '</div>' +
+            '<div class="actions">' +
+            '<button onclick="deleteNote(' + note.id + ')">Borrar nota</button>' +
+            '</div>';
+        // Agregar la nota al contenedor principal
         notesContainer.appendChild(noteElement);
     });
 }
 
-/* Agregar nota */
+// Función para agregar una nueva nota
 function addNote() {
     const title = document.getElementById('title').value;
     const text = document.getElementById('text').value;
 
+    // Verificar que los campos de título y texto no estén vacíos
     if (!title || !text) {
         alert('Por favor, rellena todos los campos');
         return;
     }
 
+    // Incrementar el ID global y crear una nueva nota
     idGlobal++;
-    const newNote = { id: idGlobal, title, text, realizada: false };
+    const newNote = { id: idGlobal, title: title, text: text, realizada: false };
     notes.push(newNote);
+    // Aplicar filtros y limpiar campos después de agregar la nota
     applyFilters();
     clearFields();
 }
 
-/* Limpiar campos */
+// Función para limpiar los campos de entrada de título y texto
 function clearFields() {
     document.getElementById('title').value = '';
     document.getElementById('text').value = '';
 }
 
-/* Borrar nota */
+// Función para eliminar una nota según su ID
 function deleteNote(id) {
-    notes = notes.filter(note => note.id !== id);
+    notes = notes.filter(function (note) {
+        return note.id !== id;
+    });
+    // Aplicar filtros después de eliminar la nota
     applyFilters();
 }
 
-/* Marcar nota como realizada */
+// Función para cambiar el estado de realizada/no realizada de una nota
 function toggleDone(id) {
-    const note = notes.find(note => note.id === id);
+    const note = notes.find(function (note) {
+        return note.id === id;
+    });
     note.realizada = !note.realizada;
-    applyFilters();
+    // Renderizar las notas actualizadas después de cambiar el estado
+    renderNotes(notes);
 }
 
-/* Aplicar filtros a la lista de notas */
+// Función para aplicar filtros de búsqueda y estado a la lista de notas
 function applyFilters() {
     const searchText = document.getElementById('searchText').value.toLowerCase();
     const filterDone = document.getElementById('filterDone').checked;
 
     let filteredNotes = notes;
 
+    // Filtrar notas por texto de título o contenido
     if (searchText) {
-        filteredNotes = filteredNotes.filter(note => note.title.toLowerCase().includes(searchText) || note.text.toLowerCase().includes(searchText));
+        filteredNotes = filteredNotes.filter(function (note) {
+            return note.title.toLowerCase().includes(searchText) || note.text.toLowerCase().includes(searchText);
+        });
     }
 
+    // Filtrar notas por estado de realizada/no realizada
     if (filterDone) {
-        filteredNotes = filteredNotes.filter(note => note.realizada);
+        filteredNotes = filteredNotes.filter(function (note) {
+            return note.realizada;
+        });
     }
 
+    // Renderizar las notas filtradas en la interfaz de usuario
     renderNotes(filteredNotes);
 }
 
-// Inicializar con las notas existentes
+// Inicializar la aplicación mostrando las notas iniciales y aplicando filtros
 applyFilters();
